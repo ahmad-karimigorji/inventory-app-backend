@@ -1,6 +1,6 @@
 # inventory-app-backend
 
-##Developed by CHATGPT
+## Developed by CHATGPT
 
 ---
 
