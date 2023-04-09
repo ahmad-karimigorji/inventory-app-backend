@@ -1,77 +1,45 @@
-const express = require("express");
-const mongoose = require("mongoose");
-require("dotenv").config();
+const dotenv = require('dotenv');
+dotenv.config();
+
+const express = require('express');
+const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
 
 const app = express();
+const port = process.env.PORT || 5000;
 
-// Connect to MongoDB
-mongoose
-  .connect(process.env.MONGODB_URI, {
+// parse requests of content-type - application/x-www-form-urlencoded
+app.use(bodyParser.urlencoded({ extended: true }))
+
+// parse requests of content-type - application/json
+app.use(bodyParser.json())
+
+// Configuring the database
+mongoose.Promise = global.Promise;
+
+// Connecting to the database
+mongoose.connect(process.env.DB_URL, {
     useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
-  .then(() => console.log("MongoDB connected"))
-  .catch((error) => console.log("MongoDB connection error:", error));
-
-// Define schemas
-const categorySchema = new mongoose.Schema({
-  title: String,
-  description: String,
-  id: Number,
+    useUnifiedTopology: true
+}).then(() => {
+    console.log("Successfully connected to the database");    
+}).catch(err => {
+    console.log('Could not connect to the database. Exiting now...', err);
+    process.exit();
 });
 
-const productSchema = new mongoose.Schema({
-  title: String,
-  quantity: String,
-  selectCategory: {
-    title: String,
-    description: String,
-    id: Number,
-    // ref: 'Category'
-  },
-  id: Number,
-  AtCreate: Date
+// define a simple route
+app.get('/', (req, res) => {
+    res.json({"message": "Welcome to the backend project"});
 });
 
+// Require categories routes
+require('./app/routes/category.routes.js')(app);
 
-// Define models
-const Category = mongoose.model("Category", categorySchema);
-const Product = mongoose.model("Product", productSchema);
+// Require products routes
+require('./app/routes/product.routes.js')(app);
 
-// Define routes
-app.get("/categories", async (req, res) => {
-  const categories = await Category.find();
-  res.send(categories);
+// listen for requests
+app.listen(port, () => {
+    console.log(`Server is listening on port ${port}`);
 });
-
-app.post("/categories", async (req, res) => {
-  const category = new Category({
-    title: req.body.title,
-    description: req.body.description,
-    id: Date.now(),
-  });
-  await category.save();
-  res.send(category);
-});
-
-app.get("/products", async (req, res) => {
-  const products = await Product.find().populate("selectCategory");
-  res.send(products);
-});
-
-app.post("/products", async (req, res) => {
-  const category = await Category.findOne({ id: req.body.categoryId });
-  const product = new Product({
-    title: req.body.title,
-    quantity: req.body.quantity,
-    selectCategory: category._id,
-    id: Date.now(),
-    AtCreate: new Date(),
-  });
-  await product.save();
-  res.send(product);
-});
-
-// Start server
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server started on port ${PORT}`));

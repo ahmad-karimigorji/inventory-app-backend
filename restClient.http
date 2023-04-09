@@ -1,0 +1,16 @@
+
+###
+
+GET http://localhost:5000/products HTTP/1.1
+content-type: application/json
+
+###
+
+
+###
+DELETE http://localhost:5000/categories/643185be5d52b284aeb4cd06 HTTP/1.1
+content-type: application/json
+
+
+
+###
