@@ -2,7 +2,7 @@
 
 ## Developed by CHATGPT
 
----
+
 
 ```
 {
