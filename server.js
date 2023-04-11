@@ -4,6 +4,7 @@ dotenv.config();
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
+const cors = require('cors'); // import cors package
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -27,6 +28,9 @@ mongoose.connect(process.env.DB_URL, {
     console.log('Could not connect to the database. Exiting now...', err);
     process.exit();
 });
+
+// enable cors
+app.use(cors());
 
 // define a simple route
 app.get('/', (req, res) => {
